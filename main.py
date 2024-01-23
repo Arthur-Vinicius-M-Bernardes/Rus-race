@@ -30,18 +30,27 @@ missile = pygame.transform.scale(missile, (35,35))
 food_cheese = pygame.image.load('sprites/cheese.png')
 food_cheese = pygame.transform.scale(food_cheese, (55,55))
 
+food_meat = pygame.image.load("sprites/meat.png")
+food_meat = pygame.transform.scale(food_meat, (55,55))
+
 chefsprite = pygame.image.load('sprites/chef.png')
 chefsprite = pygame.transform.scale(chefsprite, (70,120))
 
 rottensprite = pygame.image.load('sprites/rotten.png')
 rottensprite = pygame.transform.scale(rottensprite,(60,60))
 
+bread = pygame.image.load('sprites/bread.png')
+bread = pygame.transform.scale(bread, (55,55))
+
 counter = pygame.image.load('sprites/counter.jpg')
 counter = pygame.transform.scale(counter, (124,616))
 
 #object starting positions
-pos_food_cheese_x = 500
+pos_food_cheese_x = 1200
 pos_food_cheese_y = 360
+
+pos_food_meat_x = 1200
+pos_food_meat_y = 450
 
 pos_chef_x = 150
 pos_chef_y = 300
@@ -49,6 +58,9 @@ pos_chef_y = 300
 pos_missile_x = 150
 pos_missile_y = 300
 missile_velocity = 0
+
+pos_bread_x = 1200
+pos_bread_y = 120
 
 pos_rotten_x = 500
 pos_rotten_y = 500
@@ -63,13 +75,16 @@ trigger = False
 pontos = 1
 vidas = 4
 
-
 #rects
 chef_rect = chefsprite.get_rect()
 cheese_rect = food_cheese.get_rect()
 missile_rect = missile.get_rect()
 rotten_rect = rottensprite.get_rect()
 counter_rect = counter.get_rect()
+meat_rect = food_meat.get_rect()
+bread_rect = bread.get_rect()
+
+recipe = [bread_rect, meat_rect]
 
 
 #respawns normal food
@@ -83,6 +98,15 @@ def respawn_rotten():
     x = 1350
     y = random.randint(110,700)
     return [x,y]
+def respawn_recipe_food():
+    x = 1350
+    y = random.randint(110, 700)
+    return [x, y]
+def respawn_recipe_food_2():
+    x = 1350
+    y = random.randint(110, 700)
+    return [x, y]
+
 
 
 
@@ -98,16 +122,36 @@ def reload():
 #food collisions
 def collision_food():
     global pontos
-
     if missile_rect.colliderect(cheese_rect):
         pontos -= 1
         return True
     elif cheese_rect.colliderect(counter_rect):
-        pontos += 1
+        pontos += 2
         return True
     else:
         return False
-
+def collision_food_recipe():
+    global pontos
+    global recipe
+    if chef_rect.colliderect(meat_rect):
+        pontos += 2
+        if meat_rect in recipe:
+            pontos += 4
+            return True
+        return True
+    else:
+        return False
+def collision_food_recipe_2():
+    global pontos
+    global recipe
+    if chef_rect.colliderect(bread_rect):
+        pontos += 2
+        if bread_rect in recipe:
+            pontos +=4
+            return True
+        return True
+    else:
+        return False
 
 #rotten food collisions
 def collision_rotten():
@@ -121,6 +165,9 @@ def collision_rotten():
         return True
     else:
         return False
+
+
+
 
 run = True
 #game loop
@@ -143,11 +190,11 @@ while run:
     key = pygame.key.get_pressed()
 
     #key inputs
-    if key[pygame.K_UP] and pos_chef_y > 1:
+    if key[pygame.K_w] and pos_chef_y > 1:
         pos_chef_y -= 6
         if not trigger:
             pos_missile_y -=6
-    if key[pygame.K_DOWN] and pos_chef_y < 665:
+    if key[pygame.K_s] and pos_chef_y < 665:
         pos_chef_y += 6
         if not trigger:
             pos_missile_y +=6
@@ -157,6 +204,9 @@ while run:
 
 
     #entity respawns
+
+
+
     if cheese_rect.colliderect(counter_rect):
         pos_food_cheese_y = respawn()[0]
         pos_food_cheese_x = respawn()[1]
@@ -171,6 +221,15 @@ while run:
     if pos_rotten_x == 200 or collision_rotten():
         pos_rotten_y = respawn_rotten()[1]
         pos_rotten_x = respawn_rotten()[0]
+
+    if pos_food_meat_x <= 60 or collision_food_recipe():
+        pos_food_meat_y = respawn_recipe_food()[1]
+        pos_food_meat_x = 1350
+
+    if pos_bread_x <= 60 or collision_food_recipe_2():
+        pos_bread_y = respawn_recipe_food_2()[1]
+        pos_bread_x = 1350
+
 
 
 
@@ -187,12 +246,20 @@ while run:
     rotten_rect.y = pos_rotten_y
     rotten_rect.x = pos_rotten_x
 
+    meat_rect.y = pos_food_meat_y
+    meat_rect.x = pos_food_meat_x
+
+    bread_rect.x = pos_bread_x
+    bread_rect.y = pos_bread_y
+
     counter_rect.x = 230
     counter_rect.y = 104
 
     #entity movement
     pos_rotten_x -= 3
     pos_food_cheese_y -= 4
+    pos_food_meat_x -= 8
+    pos_bread_x -= 4
     pos_missile_x += missile_velocity
 
     #game enders
@@ -217,7 +284,9 @@ while run:
     screen.blit(missile, (pos_missile_x, pos_missile_y))
     screen.blit(food_cheese, (pos_food_cheese_y, pos_food_cheese_x))
     screen.blit(chefsprite, (pos_chef_x,pos_chef_y))
+    screen.blit(food_meat, (pos_food_meat_x,pos_food_meat_y))
     screen.blit(rottensprite, (pos_rotten_x,pos_rotten_y))
+    screen.blit(bread, (pos_bread_x,pos_bread_y))
 
 
     pygame.display.update()
