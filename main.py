@@ -9,12 +9,15 @@ y = 720
 
 clock = pygame.time.Clock()
 
+#font color
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 
+#timer
 current_time = 0
 time_limit = 60000
 
+#sprites
 screen = pygame.display.set_mode((x,y))
 pygame.display.set_caption('RUs Race')
 
@@ -36,7 +39,7 @@ rottensprite = pygame.transform.scale(rottensprite,(60,60))
 counter = pygame.image.load('sprites/counter.jpg')
 counter = pygame.transform.scale(counter, (124,616))
 
-
+#object starting positions
 pos_food_cheese_x = 500
 pos_food_cheese_y = 360
 
@@ -50,27 +53,40 @@ missile_velocity = 0
 pos_rotten_x = 500
 pos_rotten_y = 500
 
+#game font
 font = pygame.font.Font('sprites/PressStart2P-vaV7.ttf', 34)
 score_text = font.render('00   00', True, COLOR_WHITE, COLOR_BLACK)
+
+#projectile trigger
 trigger = False
 
 pontos = 1
 vidas = 4
 
+
+#rects
 chef_rect = chefsprite.get_rect()
 cheese_rect = food_cheese.get_rect()
 missile_rect = missile.get_rect()
 rotten_rect = rottensprite.get_rect()
 counter_rect = counter.get_rect()
 
+
+#respawns normal food
 def respawn():
     x = 1350
     y = random.randint(110,660)
     return [x,y]
+
+#respawns rotten food
 def respawn_rotten():
     x = 1350
     y = random.randint(110,700)
     return [x,y]
+
+
+
+#projectile reload
 def reload():
     trigger = False
     respawn_missile_x = pos_chef_x
@@ -78,6 +94,8 @@ def reload():
     missile_velocity = 0
     return [respawn_missile_x,respawn_missile_y, missile_velocity, trigger]
 
+
+#food collisions
 def collision_food():
     global pontos
 
@@ -89,6 +107,9 @@ def collision_food():
         return True
     else:
         return False
+
+
+#rotten food collisions
 def collision_rotten():
     global vidas
     global pontos
@@ -180,10 +201,7 @@ while run:
     if current_time > time_limit:
         run = False
 
-    pygame.draw.rect(screen,(255,0,0), chef_rect, 4)
-    pygame.draw.rect(screen, (255, 0, 0), cheese_rect, 4)
-    pygame.draw.rect(screen, (255, 0, 0), missile_rect, 4)
-    pygame.draw.rect(screen, (0,255,0), rotten_rect, 4)
+
 
     #draw objects
     score = font.render(f' SCORE: {int(pontos)} ', True, (255,255,255))
