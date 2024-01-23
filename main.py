@@ -7,6 +7,14 @@ pygame.init()
 x = 1280
 y = 720
 
+clock = pygame.time.Clock()
+
+COLOR_BLACK = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
+
+current_time = 0
+time_limit = 60000
+
 screen = pygame.display.set_mode((x,y))
 pygame.display.set_caption('RUs Race')
 
@@ -42,11 +50,12 @@ missile_velocity = 0
 pos_rotten_x = 500
 pos_rotten_y = 500
 
-font = pygame.font.SysFont('sprites/PressStart2P.tff', 48)
+font = pygame.font.Font('sprites/PressStart2P-vaV7.ttf', 34)
+score_text = font.render('00   00', True, COLOR_WHITE, COLOR_BLACK)
 trigger = False
 
-pontos = 0
-vidas = 3
+pontos = 1
+vidas = 4
 
 chef_rect = chefsprite.get_rect()
 cheese_rect = food_cheese.get_rect()
@@ -93,31 +102,40 @@ def collision_rotten():
         return False
 
 run = True
-
+#game loop
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
+    #timer
+    clock.tick(60)
+    current_time = pygame.time.get_ticks()
+    seconds = pygame.time.get_ticks() / 1000
+
+    #screen
     screen.blit(bg, (0, 0))
     rel_x = x % bg.get_rect().width
     screen.blit(bg, (rel_x - bg.get_rect().width,0))
     if rel_x < 1280:
         screen.blit(bg, (rel_x, 0))
     key = pygame.key.get_pressed()
-    if key[pygame.K_UP] and pos_chef_y > 1:
-        pos_chef_y -= 3
-        if not trigger:
-            pos_missile_y -=3
-    if key[pygame.K_DOWN] and pos_chef_y < 665:
-        pos_chef_y += 3
-        if not trigger:
-            pos_missile_y +=3
 
+    #key inputs
+    if key[pygame.K_UP] and pos_chef_y > 1:
+        pos_chef_y -= 6
+        if not trigger:
+            pos_missile_y -=6
+    if key[pygame.K_DOWN] and pos_chef_y < 665:
+        pos_chef_y += 6
+        if not trigger:
+            pos_missile_y +=6
     if key[pygame.K_SPACE]:
         trigger = True
-        missile_velocity = 5
+        missile_velocity = 10
 
+
+    #entity respawns
     if cheese_rect.colliderect(counter_rect):
         pos_food_cheese_y = respawn()[0]
         pos_food_cheese_x = respawn()[1]
@@ -135,7 +153,7 @@ while run:
 
 
 
-
+    # rect positions
     chef_rect.y = pos_chef_y
     chef_rect.x = pos_chef_x
 
@@ -151,21 +169,30 @@ while run:
     counter_rect.x = 230
     counter_rect.y = 104
 
-
-    pos_rotten_x -= 1
-    pos_food_cheese_y -= 2
+    #entity movement
+    pos_rotten_x -= 3
+    pos_food_cheese_y -= 4
     pos_missile_x += missile_velocity
+
+    #game enders
+    if vidas == 0:
+        run = False
+    if current_time > time_limit:
+        run = False
 
     pygame.draw.rect(screen,(255,0,0), chef_rect, 4)
     pygame.draw.rect(screen, (255, 0, 0), cheese_rect, 4)
     pygame.draw.rect(screen, (255, 0, 0), missile_rect, 4)
     pygame.draw.rect(screen, (0,255,0), rotten_rect, 4)
 
-
+    #draw objects
     score = font.render(f' SCORE: {int(pontos)} ', True, (255,255,255))
     lives = font.render(f' LIVES: {int(vidas)} ', True, (255, 255, 255))
-    screen.blit(score, (50,50))
-    screen.blit(lives, (250, 50))
+    time = font.render(f' TIME: {int(seconds)} ', True, (255, 255, 255))
+    screen.blit(score, (10,50))
+    screen.blit(lives, (400, 50))
+    screen.blit(time, (800, 50))
+
 
 
     screen.blit(counter, (230,104))
@@ -176,5 +203,7 @@ while run:
 
 
     pygame.display.update()
+pygame.display.flip()
+pygame.quit()
 
 
